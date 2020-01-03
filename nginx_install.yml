@@ -1,9 +1,36 @@
 ---
 - hosts: all
+  become: yes
+  become_user: root
   tasks:
-    - name: install REST API
-      apt: name=nginx state=latest
-    - name: start REST API
-      service:
-        name: nginx
+    - name: Update and upgrade apt packages
+      become: true
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400 #One day
+
+    - name: Install the "tomcat7" package
+      apt: name=tomcat7 state=latest
+
+    - name: Install "tomcat7-admin" package
+      apt: name=tomcat7-admin state=latest
+
+#    - name: Install "systemd" package
+#      apt: name=systemd state=latest
+
+    - name: copy REST API war to the VM
+      become: true
+      copy:
+        src: "~/.m2/repository/uk/gov/gchq/gaffer/analytics-rest/1.10.4-SNAPSHOT/analytics-rest-1.10.4-SNAPSHOT.war"
+        dest: /var/lib/tomcat7/webapps/rest.war
+        force: yes
+        mode: 0755
+
+    - name: Start and enable the Tomcat service
+      become: true
+      systemd:
+        name: tomcat7
         state: started
+        enabled: true
+        daemon_reload: true
