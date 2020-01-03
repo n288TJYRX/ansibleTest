@@ -2,12 +2,11 @@
 
 Vagrant.configure("2") do |config|
 config.ssh.insert_key = false
-config.vm.provision "shell", path: "provision.sh"
 config.vm.provider :virtualbox do |vb|
 config.vm.box = "ubuntu/xenial64"
 config.vm.network "private_network", ip: "192.168.50.4"
-config.vm.network "forwarded_port", guest: 80, host: 8080, id: "nginx"
-vb.customize ["modifyvm", :id, "--memory", "256"] end
+config.vm.network "forwarded_port", guest: 8080, host: 8080, id: "rest-api"
+vb.customize ["modifyvm", :id, "--memory", "1024"] end
 
 # Application server 1.
 # config.vm.define "app1" do |app|

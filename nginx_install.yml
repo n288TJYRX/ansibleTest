@@ -22,13 +22,14 @@
     - name: copy REST API war to the VM
       become: true
       copy:
-        src: "~/.m2/repository/uk/gov/gchq/gaffer/analytics-rest/1.10.4-SNAPSHOT/analytics-rest-1.10.4-SNAPSHOT.war"
+        src: "~/.m2/repository/uk/gov/gchq/gaffer/road-traffic-rest/1.10.4-SNAPSHOT/road-traffic-rest-1.10.4-SNAPSHOT.war"
         dest: /var/lib/tomcat7/webapps/rest.war
         force: yes
         mode: 0755
 
     - name: Start and enable the Tomcat service
       become: true
+      become_user: root
       systemd:
         name: tomcat7
         state: started
