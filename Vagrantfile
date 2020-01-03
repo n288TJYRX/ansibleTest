@@ -2,10 +2,11 @@
 
 Vagrant.configure("2") do |config|
 config.ssh.insert_key = false
-config.vm.provider :virtualbox do |vb|
 config.vm.provision "shell", path: "provision.sh"
+config.vm.provider :virtualbox do |vb|
 config.vm.box = "hashicorp/precise32"
-config.vm.network "forwarded_port", guest: 80, host: 8080, id: "nginx"
+config.vm.network "private_network", ip: "192.168.50.4"
+# config.vm.network "forwarded_port", guest: 80, host: 8080, id: "nginx"
 vb.customize ["modifyvm", :id, "--memory", "256"] end
 
 # Application server 1.

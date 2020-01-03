@@ -1,9 +1,9 @@
 ---
 - hosts: all
   tasks:
-    - name: ensure nginx is at the latest version
+    - name: install REST API
       apt: name=nginx state=latest
-    - name: start nginx
+    - name: start REST API
       service:
         name: nginx
         state: started
