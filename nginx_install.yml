@@ -92,30 +92,30 @@
         path: ../../usr/share/tomcat7/temp
         state: directory
 
-    - name: Create symbolic link for common
-      command: ln -s /var/lib/tomcat7/common/ common
-      args:
+#    - name: Create symbolic link for common
+#      command: ln -s /var/lib/tomcat7/common/ common
+#      args:
 #        chdir: ../../usr/share/tomcat7
-        creates: ../../usr/share/tomcat7/common
-
-    - name: Create symbolic link for server
-      command: ln -s /var/lib/tomcat7/server/ server
-      args:
+#        creates: ../../usr/share/tomcat7/common
+#
+#    - name: Create symbolic link for server
+#      command: ln -s /var/lib/tomcat7/server/ server
+#      args:
 #        chdir: ../../usr/share/tomcat7
-        creates: ../../usr/share/tomcat7/server
-
-
-    - name: Create symbolic link for shared
-      command: ln -s /var/lib/tomcat7/shared/ shared
-      args:
+#        creates: ../../usr/share/tomcat7/server
+#
+#
+#    - name: Create symbolic link for shared
+#      command: ln -s /var/lib/tomcat7/shared/ shared
+#      args:
 #        chdir: ../../usr/share/tomcat7
-        creates: ../../usr/share/tomcat7/shared
-
-    - name: Create symbolic link for conf
-      command: ln -s /var/lib/tomcat7/conf/ conf
-      args:
+#        creates: ../../usr/share/tomcat7/shared
+#
+#    - name: Create symbolic link for conf
+#      command: ln -s /var/lib/tomcat7/conf/ conf
+#      args:
 #        chdir: ../../usr/share/tomcat7
-        creates: ../../usr/share/tomcat7/conf
+#        creates: ../../usr/share/tomcat7/conf
 
     - name: Create setenv.sh file
       file:
@@ -134,13 +134,13 @@
         block: |
           gaffer.graph.config=${catalina.base}/webapps/rest/graphConfig.json
           gaffer.schemas=${catalina.base}/webapps/rest/schema
-          gaffer.storeProperties=${CATALINA.BASE}/webapps/rest/accumulo/store.properties
+          gaffer.storeProperties=/var/lib/tomcat7/webapps/rest/accumulo/accumulo/store.properties
           roadTraffic.dataLoader.dataPath=${catalina.base}/rest/roadTrafficSampleData.csv
 
-    - name: Start and enable the tomcat service
-      command: ../../../usr/share/tomcat7/bin/catalina.sh run -b 0.0.0.0 -Dgaffer.storeProperties=/rest/accumulo/store.properties
-      args:
-        chdir: ../../var/lib/tomcat7
+#    - name: Start and enable the tomcat service
+#      command: ../../../usr/share/tomcat7/bin/catalina.sh run -b 0.0.0.0 -Dgaffer.storeProperties=/rest/accumulo/store.properties
+#      args:
+#        chdir: ../../var/lib/tomcat7
 
 #    - name: Start and enable the tomcat service
 #      command: ../../../usr/share/tomcat/bin/catalina.sh run "-Dgaffer.schemas=/schema" "-Dgaffer.storeProperties=/opt/jboss/wildfly/standalone/store/store.properties" "-Dgaffer.graph.config=/opt/jboss/wildfly/standalone/gaffer/graphConfig.json" "-DroadTraffic.dataLoader.dataPath=/opt/jboss/wildfly/standalone/gaffer/roadTrafficSampleData.csv"
