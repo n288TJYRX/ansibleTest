@@ -6,7 +6,7 @@ config.vm.provider :virtualbox do |vb|
 config.vm.box = "ubuntu/xenial64"
 config.vm.network "private_network", ip: "192.168.50.4"
 config.vm.network "forwarded_port", guest: 8080, host: 8080, id: "rest-api"
-vb.customize ["modifyvm", :id, "--memory", "1024"] end
+vb.customize ["modifyvm", :id, "--memory", "2048"] end
 
 # Application server 1.
 # config.vm.define "app1" do |app|

@@ -10,28 +10,153 @@
         update_cache: yes
         cache_valid_time: 86400 #One day
 
-    - name: Install the "tomcat7" package
-      apt: name=tomcat7 state=latest
+    - name: install tomcat
+      package:
+        name: tomcat7
+        state: present
 
-    - name: Install "tomcat7-admin" package
-      apt: name=tomcat7-admin state=latest
+#    - name: Make the tomcat directory
+#      command: mkdir /tomcat && cd /tomcat
+#      args:
+#        chdir: /var/lib
 
-#    - name: Install "systemd" package
-#      apt: name=systemd state=latest
+#    - name: download & unarchive tomcat
+#      unarchive:
+#        src: http://apache.spinellicreations.com/tomcat/tomcat-8/v8.5.50/bin/apache-tomcat-8.5.50.tar.gz
+#        dest: /var/lib/tomcat
+#        remote_src: yes
+#        extra_opts: [--strip-components=1]
+
+#    - name: Make the tomcat directory
+#      file:
+#        path: /var/lib/tomcat
+#        state: directory
+
+#    - name: Download the "tomcat" package
+#      command: wget http://apache.spinellicreations.com/tomcat/tomcat-8/v8.5.50/bin/apache-tomcat-8.5.50.tar.gz
+#      args:
+#        chdir: /tomcat
+#
+#    - name: Install the "tomcat" package
+#      command: tar xvzf apache-tomcat-8.5.50.tar.gz
+
+#    - name: Install "tomcat-admin" package
+#      apt: name=tomcat-admin state=latest
+#    - name: Make the webapps directory
+#      file:
+#        path: /webapps
+#        state: directory
 
     - name: copy REST API war to the VM
       become: true
       copy:
-        src: "~/.m2/repository/uk/gov/gchq/gaffer/road-traffic-rest/1.10.4-SNAPSHOT/road-traffic-rest-1.10.4-SNAPSHOT.war"
+        src: "~/.m2/repository/uk/gov/gchq/gaffer/analytics-rest/1.10.4-SNAPSHOT/analytics-rest-1.10.4-SNAPSHOT.war"
         dest: /var/lib/tomcat7/webapps/rest.war
         force: yes
         mode: 0755
 
-    - name: Start and enable the Tomcat service
+    - name: copy config to the VM
       become: true
-      become_user: root
-      systemd:
-        name: tomcat7
-        state: started
-        enabled: true
-        daemon_reload: true
+      copy:
+        src: "~/Documents/gaffer/ansibleTestRepo/graphConfig.json"
+        dest: /var/lib/tomcat7/webapps/rest/graphConfig.json
+        force: yes
+        mode: 0755
+
+    - name: copy schema to the VM
+      become: true
+      copy:
+        src: "~/Documents/gaffer/ansibleTestRepo/schema"
+        dest: /var/lib/tomcat7/webapps/rest/schema
+        force: yes
+        mode: 0755
+
+    - name: copy sample data to the VM
+      become: true
+      copy:
+        src: "~/Documents/gaffer/ansibleTestRepo/roadTrafficSampleData.csv"
+        dest: /var/lib/tomcat7/webapps/rest/roadTrafficSampleData.csv
+        force: yes
+        mode: 0755
+
+    - name: copy store properties to the VM
+      become: true
+      copy:
+        src: "~/Documents/gaffer/ansibleTestRepo/accumulo"
+        dest: /var/lib/tomcat7/webapps/rest/accumulo
+        force: yes
+        mode: 0755
+
+    - name: Create temp directory
+      file:
+        path: ../../usr/share/tomcat7/temp
+        state: directory
+
+    - name: Create symbolic link for common
+      command: ln -s /var/lib/tomcat7/common/ common
+      args:
+#        chdir: ../../usr/share/tomcat7
+        creates: ../../usr/share/tomcat7/common
+
+    - name: Create symbolic link for server
+      command: ln -s /var/lib/tomcat7/server/ server
+      args:
+#        chdir: ../../usr/share/tomcat7
+        creates: ../../usr/share/tomcat7/server
+
+
+    - name: Create symbolic link for shared
+      command: ln -s /var/lib/tomcat7/shared/ shared
+      args:
+#        chdir: ../../usr/share/tomcat7
+        creates: ../../usr/share/tomcat7/shared
+
+    - name: Create symbolic link for conf
+      command: ln -s /var/lib/tomcat7/conf/ conf
+      args:
+#        chdir: ../../usr/share/tomcat7
+        creates: ../../usr/share/tomcat7/conf
+
+    - name: Create setenv.sh file
+      file:
+        path: ../../usr/share/tomcat7/bin/setenv.sh
+        state: touch
+
+    - name: Set system properties in setenv.sh file
+      blockinfile:
+        path: ../../usr/share/tomcat7/bin/setenv.sh
+        block: |
+          export CATALINA_OPTS="$CATALINA_OPTS -Dgaffer.storeProperties=/var/lib/tomcat7/webapps/rest/accumulo/store.properties"
+
+    - name: Set system properties so the REST can find the files it needs
+      blockinfile:
+        path: /var/lib/tomcat7/conf/catalina.properties
+        block: |
+          gaffer.graph.config=${catalina.base}/webapps/rest/graphConfig.json
+          gaffer.schemas=${catalina.base}/webapps/rest/schema
+          gaffer.storeProperties=${CATALINA.BASE}/webapps/rest/accumulo/store.properties
+          roadTraffic.dataLoader.dataPath=${catalina.base}/rest/roadTrafficSampleData.csv
+
+    - name: Start and enable the tomcat service
+      command: ../../../usr/share/tomcat7/bin/catalina.sh run -b 0.0.0.0 -Dgaffer.storeProperties=/rest/accumulo/store.properties
+      args:
+        chdir: ../../var/lib/tomcat7
+
+#    - name: Start and enable the tomcat service
+#      command: ../../../usr/share/tomcat/bin/catalina.sh run "-Dgaffer.schemas=/schema" "-Dgaffer.storeProperties=/opt/jboss/wildfly/standalone/store/store.properties" "-Dgaffer.graph.config=/opt/jboss/wildfly/standalone/gaffer/graphConfig.json" "-DroadTraffic.dataLoader.dataPath=/opt/jboss/wildfly/standalone/gaffer/roadTrafficSampleData.csv"
+
+
+#    - name: Start and enable the tomcat service
+#      become: true
+#      become_user: root
+#      systemd:
+#        name: tomcat
+#        state: started
+#        enabled: true
+#        daemon_reload: true
+
+# Try starting tomcat by running catalina.sh and passing system properties as arguments like in the dockerfile
+# - Think i first need to navigate to the right place and run catalina.sh from there
+# Could also try seeing if we can pass arguments when starting tomcat as a service
+# Why do we install 2 tomcat packages anyway? Trying removing one
+# Try restarting the VM from scratch aswell, stuff we did earlier might have messed it up
