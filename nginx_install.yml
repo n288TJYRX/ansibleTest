@@ -1,7 +1,7 @@
 ---
 - hosts: all
   become: yes
-  become_user: root
+  become_method: sudo
   tasks:
     - name: Update and upgrade apt packages
       become: true
@@ -132,10 +132,10 @@
       blockinfile:
         path: /var/lib/tomcat7/conf/catalina.properties
         block: |
-          gaffer.graph.config=${catalina.base}/webapps/rest/graphConfig.json
-          gaffer.schemas=${catalina.base}/webapps/rest/schema
+          gaffer.graph.config=/var/lib/tomcat7/webapps/rest/graphConfig.json
+          gaffer.schemas=/var/lib/tomcat7/webapps/rest/schema/schema
           gaffer.storeProperties=/var/lib/tomcat7/webapps/rest/accumulo/accumulo/store.properties
-          roadTraffic.dataLoader.dataPath=${catalina.base}/rest/roadTrafficSampleData.csv
+          roadTraffic.dataLoader.dataPath=/var/lib/tomcat7/webapps/rest/roadTrafficSampleData.csv
 
 #    - name: Start and enable the tomcat service
 #      command: ../../../usr/share/tomcat7/bin/catalina.sh run -b 0.0.0.0 -Dgaffer.storeProperties=/rest/accumulo/store.properties
