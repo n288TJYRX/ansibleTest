@@ -67,7 +67,7 @@
       become: true
       copy:
         src: "~/Documents/gaffer/ansibleTestRepo/schema"
-        dest: /var/lib/tomcat7/webapps/rest/schema
+        dest: /var/lib/tomcat7/webapps/rest
         force: yes
         mode: 0755
 
@@ -83,7 +83,7 @@
       become: true
       copy:
         src: "~/Documents/gaffer/ansibleTestRepo/accumulo"
-        dest: /var/lib/tomcat7/webapps/rest/accumulo
+        dest: /var/lib/tomcat7/webapps/rest
         force: yes
         mode: 0755
 
@@ -92,30 +92,31 @@
         path: ../../usr/share/tomcat7/temp
         state: directory
 
-#    - name: Create symbolic link for common
-#      command: ln -s /var/lib/tomcat7/common/ common
-#      args:
-#        chdir: ../../usr/share/tomcat7
-#        creates: ../../usr/share/tomcat7/common
-#
-#    - name: Create symbolic link for server
-#      command: ln -s /var/lib/tomcat7/server/ server
-#      args:
-#        chdir: ../../usr/share/tomcat7
-#        creates: ../../usr/share/tomcat7/server
-#
-#
-#    - name: Create symbolic link for shared
-#      command: ln -s /var/lib/tomcat7/shared/ shared
-#      args:
-#        chdir: ../../usr/share/tomcat7
-#        creates: ../../usr/share/tomcat7/shared
-#
-#    - name: Create symbolic link for conf
-#      command: ln -s /var/lib/tomcat7/conf/ conf
-#      args:
-#        chdir: ../../usr/share/tomcat7
-#        creates: ../../usr/share/tomcat7/conf
+# Temporarily comment these out when running the second time because it errors saying there are already symbolic links
+    - name: Create symbolic link for common
+      command: ln -s /var/lib/tomcat7/common/ common
+      args:
+        chdir: ../../usr/share/tomcat7
+        creates: ../../usr/share/tomcat7/common
+
+    - name: Create symbolic link for server
+      command: ln -s /var/lib/tomcat7/server/ server
+      args:
+        chdir: ../../usr/share/tomcat7
+        creates: ../../usr/share/tomcat7/server
+
+
+    - name: Create symbolic link for shared
+      command: ln -s /var/lib/tomcat7/shared/ shared
+      args:
+        chdir: ../../usr/share/tomcat7
+        creates: ../../usr/share/tomcat7/shared
+
+    - name: Create symbolic link for conf
+      command: ln -s /var/lib/tomcat7/conf/ conf
+      args:
+        chdir: ../../usr/share/tomcat7
+        creates: ../../usr/share/tomcat7/conf
 
     - name: Create setenv.sh file
       file:
@@ -133,8 +134,8 @@
         path: /var/lib/tomcat7/conf/catalina.properties
         block: |
           gaffer.graph.config=/var/lib/tomcat7/webapps/rest/graphConfig.json
-          gaffer.schemas=/var/lib/tomcat7/webapps/rest/schema/schema
-          gaffer.storeProperties=/var/lib/tomcat7/webapps/rest/accumulo/accumulo/store.properties
+          gaffer.schemas=/var/lib/tomcat7/webapps/rest/schema
+          gaffer.storeProperties=/var/lib/tomcat7/webapps/rest/accumulo/store.properties
           roadTraffic.dataLoader.dataPath=/var/lib/tomcat7/webapps/rest/roadTrafficSampleData.csv
 
 #    - name: Start and enable the tomcat service
